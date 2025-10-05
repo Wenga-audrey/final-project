@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Test</title>
+</head>
+
+<body>
+    <h1>API Endpoint Tests</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        import { api } from './shared/api.js';
+
+        const resultsDiv = document.getElementById('results');
+
+        const testEndpoints = async () => {
+            const baseUrl = 'http://localhost:3002';
+            const endpoints = [
+                '/api/health',
+                '/api/auth/login',
+                '/api/auth/register'
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${baseUrl}${endpoint}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const result = document.createElement('p');
+                    result.textContent = `✓ ${endpoint}: ${response.status} ${response.statusText}`;
+                    result.style.color = 'green';
+                    resultsDiv.appendChild(result);
+                } catch (error) {
+                    const result = document.createElement('p');
+                    result.textContent = `✗ ${endpoint}: ${error.message}`;
+                    result.style.color = 'red';
+                    resultsDiv.appendChild(result);
+                }
+            }
+        };
+
+        testEndpoints();
+    </script>
+</body>
+
+</html>

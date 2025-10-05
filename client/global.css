@@ -1,0 +1,468 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* Tailwind CSS directives - these are normal and expected */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom utilities for MindBoost branding */
+@layer utilities {
+  .text-mindboost-blue {
+    color: hsl(var(--mindboost-blue));
+  }
+
+  .text-mindboost-dark-blue {
+    color: hsl(var(--mindboost-dark-blue));
+  }
+
+  .text-mindboost-light-blue {
+    color: hsl(var(--mindboost-light-blue));
+  }
+
+  .bg-mindboost-light-blue {
+    background-color: hsl(var(--mindboost-light-blue));
+  }
+
+  .bg-mindboost-dark-blue {
+    background-color: hsl(var(--mindboost-dark-blue));
+  }
+}
+
+/* Additional custom utilities */
+@layer utilities {
+  .text-mindboost-blue {
+    color: hsl(var(--mindboost-blue));
+  }
+
+  .text-mindboost-dark-blue {
+    color: hsl(var(--mindboost-dark-blue));
+  }
+
+  .text-mindboost-light-blue {
+    color: hsl(var(--mindboost-light-blue));
+  }
+
+  .bg-mindboost-light-blue {
+    background-color: hsl(var(--mindboost-light-blue));
+  }
+
+  .bg-mindboost-dark-blue {
+    background-color: hsl(var(--mindboost-dark-blue));
+  }
+}
+
+@layer utilities {
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .slider::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+}
+
+/* CSS variables for color scheme */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 17% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 17% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 17% 8%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 25% 95%;
+    --secondary-foreground: 210 17% 8%;
+
+    --muted: 210 25% 95%;
+    --muted-foreground: 210 13% 45%;
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 25% 88%;
+    --input: 210 25% 88%;
+    --ring: 221 83% 53%;
+
+    --radius: 1rem;
+
+    /* MindBoost Green Palette for main site */
+    --mindboost-blue: 142 76% 36%;
+    --mindboost-dark-blue: 142 76% 28%;
+    --mindboost-light-blue: 142 76% 96%;
+    --mindboost-slate: 210 13% 45%;
+    --mindboost-cream: 142 20% 97%;
+    --mindboost-olive: 60 9% 35%;
+    --mindboost-ebony: 0 0% 15%;
+
+    /* MindBoost Green Palette - modern enhanced */
+    --mindboost-green: 142 76% 36%;
+    --mindboost-dark-green: 142 76% 28%;
+    --mindboost-light-green: 142 76% 96%;
+    --mindboost-green-gradient: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 28%));
+    --mindboost-green-hover: 142 76% 42%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 210 44% 3%;
+    --foreground: 210 25% 95%;
+
+    --card: 210 44% 6%;
+    --card-foreground: 210 25% 95%;
+
+    --popover: 210 44% 6%;
+    --popover-foreground: 210 25% 95%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 30% 12%;
+    --secondary-foreground: 210 25% 95%;
+
+    --muted: 210 30% 12%;
+    --muted-foreground: 210 13% 65%;
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 25% 95%;
+
+    --border: 210 30% 15%;
+    --input: 210 30% 15%;
+    --ring: 221 83% 53%;
+
+    /* MindBoost Dark Mode Colors */
+    --mindboost-blue: 142 76% 36%;
+    --mindboost-dark-blue: 142 76% 28%;
+    --mindboost-light-blue: 142 76% 15%;
+    --mindboost-slate: 210 13% 65%;
+    --mindboost-cream: 210 25% 8%;
+    --mindboost-olive: 60 9% 25%;
+    --mindboost-ebony: 0 0% 10%;
+
+    /* MindBoost Green Palette for all pages */
+    --mindboost-green: 142 76% 36%;
+    --mindboost-dark-green: 142 76% 28%;
+    --mindboost-light-green: 142 76% 96%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+/* Base styles - using @apply for Tailwind utility classes */
+@layer base {
+  * {
+    /* Ignore unknown at rule warning - this is normal for Tailwind */
+    @apply border-border;
+  }
+
+  body {
+    /* Ignore unknown at rule warning - this is normal for Tailwind */
+    @apply bg-background text-foreground font-sans min-h-screen;
+    letter-spacing: 0.01em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: bold;
+    color: hsl(var(--mindboost-blue));
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  a {
+    color: hsl(var(--mindboost-blue));
+    border-radius: 0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-duration: 200ms;
+  }
+
+  a:hover {
+    background-color: hsl(var(--mindboost-light-blue));
+    color: hsl(var(--mindboost-dark-blue));
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  button,
+  input[type="submit"],
+  input[type="button"] {
+    background-image: linear-gradient(to right, hsl(var(--mindboost-blue)), #60a5fa);
+    color: #fff;
+    border-radius: 0.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: all 200ms;
+  }
+
+  button:hover,
+  input[type="submit"]:hover,
+  input[type="button"]:hover {
+    background-image: linear-gradient(to right, hsl(var(--mindboost-dark-blue)), #1d4ed8);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: 'Inter', 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    border: 1px solid hsl(var(--mindboost-light-blue));
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    background-color: hsl(var(--background));
+    transition: all 200ms;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: hsl(var(--mindboost-blue));
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    outline: none;
+  }
+
+  .card {
+    background-image: linear-gradient(to bottom right, #fff, hsl(var(--mindboost-light-blue)));
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid hsl(var(--mindboost-light-blue));
+  }
+
+  .container {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .brand-gradient {
+    background-image: linear-gradient(to right, hsl(var(--mindboost-blue)), #60a5fa);
+    color: #fff;
+  }
+
+  .brand-shadow {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .brand-border {
+    border-width: 2px;
+    border-color: hsl(var(--mindboost-blue));
+  }
+
+  .brand-btn {
+    background-image: linear-gradient(to right, hsl(var(--mindboost-blue)), #60a5fa);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: all 200ms;
+  }
+
+  .brand-btn:hover {
+    background-image: linear-gradient(to right, hsl(var(--mindboost-dark-blue)), #1d4ed8);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  /* Modern design utilities */
+  .glass-effect {
+    backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(209, 213, 219, 0.3);
+  }
+
+  .dark .glass-effect {
+    background-color: rgba(17, 25, 40, 0.75);
+    border: 1px solid rgba(55, 65, 81, 0.3);
+  }
+
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--mindboost-green)), hsl(var(--mindboost-dark-green)));
+    padding: 2px;
+    border-radius: 12px;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: white;
+    border-radius: 10px;
+  }
+
+  .dark .gradient-border::before {
+    background: hsl(var(--background));
+  }
+
+  .modern-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .dark .modern-card {
+    background: linear-gradient(135deg, rgba(17,25,40,0.9), rgba(17,25,40,0.7));
+    border: 1px solid rgba(55,65,81,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .modern-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  }
+
+  .dark .modern-card:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  .dark .hover-lift:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  }
+}

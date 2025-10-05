@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Debug Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Debug Authentication Issues</h1>
+
+    <div class="test-section">
+        <h2>Configuration</h2>
+        <label>Base URL: <input type="text" id="baseUrl" value="http://localhost:3002"></label><br>
+        <label>Email: <input type="text" id="testEmail" value="debug@example.com"></label><br>
+        <label>Password: <input type="password" id="testPassword" value="debugPassword123"></label><br>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Steps</h2>
+        <button onclick="testRegister()">1. Register User</button>
+        <button onclick="testLogin()">2. Login User</button>
+        <button onclick="testGetProfile()">3. Get Profile (with token)</button>
+        <button onclick="testTokenDirectly()">4. Test Token Directly</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let authToken = '';
+        let userId = '';
+
+        function addResult(message, type = 'info', data = null) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+
+            const timestamp = new Date().toLocaleTimeString();
+            resultDiv.innerHTML = `<strong>[${timestamp}] ${message}</strong>`;
+
+            if (data) {
+                const pre = document.createElement('pre');
+                pre.textContent = JSON.stringify(data, null, 2);
+                resultDiv.appendChild(pre);
+            }
+
+            resultsDiv.insertBefore(resultDiv, resultsDiv.firstChild);
+        }
+
+        async function apiRequest(endpoint, method = 'GET', body = null, auth = false) {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const url = baseUrl + endpoint;
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (auth && authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+                addResult(`Using auth token: ${authToken.substring(0, 20)}...`, 'info');
+            }
+
+            const options = {
+                method,
+                headers
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                addResult(`Calling ${method} ${endpoint}`, 'info');
+                const response = await fetch(url, options);
+
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+
+                addResult(`${method} ${endpoint} - Status: ${response.status}`,
+                    response.ok ? 'success' : 'error', data);
+
+                return { status: response.status, data, ok: response.ok };
+            } catch (error) {
+                addResult(`Error calling ${endpoint}: ${error.message}`, 'error');
+                return { status: 0, error: error.message, ok: false };
+            }
+        }
+
+        async function testRegister() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            const userData = {
+                firstName: "Debug",
+                lastName: "User",
+                email: email,
+                phone: "+237612345678",
+                password: password,
+                role: "LEARNER",
+                examTargets: ["ENAM"]
+            };
+
+            const response = await apiRequest('/api/auth/register', 'POST', userData);
+
+            if (response.ok) {
+                userId = response.data.data.user.id;
+                addResult(`User created with ID: ${userId}`, 'success');
+            }
+
+            return response.ok;
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            const loginData = {
+                email: email,
+                password: password
+            };
+
+            const response = await apiRequest('/api/auth/login', 'POST', loginData);
+
+            if (response.ok && response.data && response.data.data && response.data.data.token) {
+                authToken = response.data.data.token;
+                userId = response.data.data.user.id;
+                addResult(`Login successful. Token: ${authToken.substring(0, 20)}...`, 'success');
+                addResult(`User ID: ${userId}`, 'success');
+            }
+
+            return response.ok;
+        }
+
+        async function testGetProfile() {
+            if (!authToken) {
+                addResult('Cannot test profile - no auth token available', 'error');
+                return false;
+            }
+
+            addResult(`Testing profile with token: ${authToken.substring(0, 20)}...`, 'info');
+            const response = await apiRequest('/api/profile', 'GET', null, true);
+
+            if (response.ok) {
+                addResult('Profile fetch successful', 'success', response.data);
+            } else {
+                addResult('Profile fetch failed', 'error', response.data);
+            }
+
+            return response.ok;
+        }
+
+        async function testTokenDirectly() {
+            if (!authToken) {
+                addResult('Cannot test token - no auth token available', 'error');
+                return;
+            }
+
+            // Try to decode the token manually (base64 decoding)
+            try {
+                const tokenParts = authToken.split('.');
+                if (tokenParts.length !== 3) {
+                    addResult('Invalid token format', 'error');
+                    return;
+                }
+
+                const payload = JSON.parse(atob(tokenParts[1]));
+                addResult('Token payload:', 'success', payload);
+
+                const now = Math.floor(Date.now() / 1000);
+                const exp = payload.exp;
+                const iat = payload.iat;
+
+                addResult(`Token issued at: ${new Date(iat * 1000).toISOString()}`, 'info');
+                addResult(`Token expires at: ${new Date(exp * 1000).toISOString()}`, 'info');
+
+                if (exp < now) {
+                    addResult('Token has expired!', 'error');
+                } else {
+                    const timeLeft = exp - now;
+                    addResult(`Token valid for ${Math.floor(timeLeft / 60)} minutes`, 'success');
+                }
+
+                // Check if userId is present
+                if (payload.userId) {
+                    addResult(`Token contains userId: ${payload.userId}`, 'success');
+                } else {
+                    addResult('Token missing userId!', 'error');
+                }
+            } catch (error) {
+                addResult(`Error decoding token: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

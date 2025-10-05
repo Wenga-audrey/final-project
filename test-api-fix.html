@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API URL Test</title>
+</head>
+
+<body>
+    <h1>API URL Construction Test</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        import { API_CONFIG } from './shared/config.js';
+        import { apiRequest } from './shared/api.js';
+
+        const resultsDiv = document.getElementById('results');
+
+        function addResult(message, isError = false) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            p.style.color = isError ? 'red' : 'green';
+            resultsDiv.appendChild(p);
+        }
+
+        try {
+            // Test the register endpoint
+            const registerEndpoint = API_CONFIG.ENDPOINTS.AUTH.REGISTER;
+            addResult('Register endpoint: ' + registerEndpoint);
+
+            // Test URL construction
+            const baseUrl = API_CONFIG.BASE_URL;
+            addResult('Base URL: ' + baseUrl);
+
+            // Manual URL construction test
+            const manualUrl = `${baseUrl}${registerEndpoint}`;
+            addResult('Manual URL construction: ' + manualUrl);
+
+            try {
+                new URL(manualUrl);
+                addResult('Manual URL is valid');
+            } catch (error) {
+                addResult('Manual URL is invalid: ' + error.message, true);
+            }
+
+            addResult('Test completed successfully!');
+        } catch (error) {
+            addResult('Error during test: ' + error.message, true);
+        }
+    </script>
+</body>
+
+</html>
