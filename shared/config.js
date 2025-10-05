@@ -54,6 +54,10 @@ export const API_CONFIG = {
     // Updated to use instructor instead of admin
     INSTRUCTOR: {
       UPLOAD_CONTENT: (subjectId) => `/api/instructor/subjects/${subjectId}/content`,
+      ASSIGNED_CLASSES: "/api/instructor/assigned-classes",
+      ASSIGNED_SUBJECTS: "/api/instructor/assigned-subjects",
+      STUDENT_PROGRESS: (subjectId) => `/api/instructor/subjects/${subjectId}/student-progress`,
+      MESSAGES: "/api/instructor/messages"
     },
     // Updated to use prep-admin instead of admin
     PREP_ADMIN: {

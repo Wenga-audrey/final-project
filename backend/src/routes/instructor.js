@@ -455,6 +455,297 @@ router.post("/feedback", async (req, res, next) => {
   }
 });
 
+// Get classes assigned to the instructor
+router.get("/assigned-classes", authenticate, requireRole(["TEACHER"]), async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Get classes where this user is assigned as a teacher
+    const assignedClasses = await prisma.classTeacher.findMany({
+      where: { teacherId: userId },
+      include: {
+        class: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            examType: true,
+            startDate: true,
+            endDate: true,
+            isActive: true
+          }
+        },
+        subject: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    // Group by class and collect subjects
+    const classMap = new Map();
+    
+    assignedClasses.forEach(assignment => {
+      const classId = assignment.class.id;
+      
+      if (!classMap.has(classId)) {
+        classMap.set(classId, {
+          ...assignment.class,
+          subjects: []
+        });
+      }
+      
+      if (assignment.subject) {
+        classMap.get(classId).subjects.push(assignment.subject);
+      }
+    });
+
+    const result = Array.from(classMap.values());
+
+    res.json({ success: true, classes: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get subjects assigned to the instructor
+router.get("/assigned-subjects", authenticate, requireRole(["TEACHER"]), async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Get subjects where this user is assigned as a teacher
+    const assignedSubjects = await prisma.classTeacher.findMany({
+      where: { 
+        teacherId: userId,
+        subjectId: { not: null }
+      },
+      include: {
+        subject: {
+          include: {
+            class: {
+              select: {
+                id: true,
+                name: true,
+                examType: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const subjects = assignedSubjects.map(assignment => ({
+      id: assignment.subject.id,
+      name: assignment.subject.name,
+      class: assignment.subject.class
+    }));
+
+    res.json({ success: true, subjects });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Upload content for a subject
+router.post("/subjects/:subjectId/content", authenticate, requireRole(["TEACHER"]), upload.single("content"), async (req, res, next) => {
+  try {
+    const { subjectId } = req.params;
+    const { title, description, contentType } = req.body;
+    const userId = req.user.id;
+
+    // Verify the instructor is assigned to this subject
+    const assignment = await prisma.classTeacher.findFirst({
+      where: {
+        teacherId: userId,
+        subjectId: subjectId
+      }
+    });
+
+    if (!assignment) {
+      return res.status(403).json({ success: false, error: "Not assigned to this subject" });
+    }
+
+    // Create content record
+    const content = await prisma.lesson.create({
+      data: {
+        title,
+        description,
+        chapterId: null, // This is subject-level content
+        content: req.file ? req.file.path : null,
+        documentUrl: req.file ? `/uploads/pdfs/${req.file.filename}` : null,
+        order: 0,
+        duration: 0,
+        isPublished: false,
+        createdBy: userId
+      }
+    });
+
+    res.json({ success: true, content });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get student progress for a subject
+router.get("/subjects/:subjectId/student-progress", authenticate, requireRole(["TEACHER"]), async (req, res, next) => {
+  try {
+    const { subjectId } = req.params;
+    const userId = req.user.id;
+
+    // Verify the instructor is assigned to this subject
+    const assignment = await prisma.classTeacher.findFirst({
+      where: {
+        teacherId: userId,
+        subjectId: subjectId
+      }
+    });
+
+    if (!assignment) {
+      return res.status(403).json({ success: false, error: "Not assigned to this subject" });
+    }
+
+    // Get all students enrolled in the class for this subject
+    const subject = await prisma.subject.findUnique({
+      where: { id: subjectId },
+      include: {
+        class: true
+      }
+    });
+
+    const enrollments = await prisma.enrollment.findMany({
+      where: {
+        classId: subject.classId,
+        status: "ACTIVE"
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    // Get progress for each student
+    const studentProgress = await Promise.all(enrollments.map(async (enrollment) => {
+      // Get chapter progress for this subject
+      const chapters = await prisma.chapter.findMany({
+        where: { subjectId: subjectId }
+      });
+
+      const chapterProgress = await prisma.chapterProgress.findMany({
+        where: {
+          userId: enrollment.userId,
+          chapterId: { in: chapters.map(c => c.id) }
+        }
+      });
+
+      const completedChapters = chapterProgress.filter(cp => cp.isCompleted).length;
+      const totalChapters = chapters.length;
+      const progressPercentage = totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+
+      return {
+        student: enrollment.user,
+        progress: progressPercentage,
+        completedChapters,
+        totalChapters
+      };
+    }));
+
+    res.json({ success: true, studentProgress });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get messages for the instructor
+router.get("/messages", authenticate, requireRole(["TEACHER"]), async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Get messages where the instructor is either sender or recipient
+    const messages = await prisma.privateMessage.findMany({
+      where: {
+        OR: [
+          { senderId: userId },
+          { recipientId: userId }
+        ]
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true
+          }
+        },
+        recipient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+
+    res.json({ success: true, messages });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Send a message
+router.post("/messages", authenticate, requireRole(["TEACHER"]), async (req, res, next) => {
+  try {
+    const { recipientId, content } = req.body;
+    const userId = req.user.id;
+
+    // Verify that both users are in the same class (either as teacher or student)
+    const senderAssignments = await prisma.classTeacher.findMany({
+      where: { teacherId: userId },
+      select: { classId: true }
+    });
+
+    const recipientEnrollments = await prisma.enrollment.findMany({
+      where: { 
+        userId: recipientId,
+        status: "ACTIVE"
+      },
+      select: { classId: true }
+    });
+
+    // Check if there's a common class
+    const senderClassIds = senderAssignments.map(a => a.classId);
+    const recipientClassIds = recipientEnrollments.map(e => e.classId);
+    const commonClass = senderClassIds.find(id => recipientClassIds.includes(id));
+
+    if (!commonClass) {
+      return res.status(403).json({ success: false, error: "Cannot message users not in your classes" });
+    }
+
+    const message = await prisma.privateMessage.create({
+      data: {
+        senderId: userId,
+        recipientId,
+        content
+      }
+    });
+
+    res.json({ success: true, message });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // QUIZ MANAGEMENT - Merged from quizzes.js
 // Get chapter quiz
 router.get('/quizzes/chapter/:chapterId', authenticate, async (req, res, next) => {
